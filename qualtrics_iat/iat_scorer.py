@@ -267,7 +267,7 @@ Error Trial Penalty (ms or SD unit): {self.rt_punishment}"""
     
             iat_corr = merged_df.groupby(self.iat_data.grouped_by[0])[[col1, col2]].corr().iloc[0::2, -1]
             iat_corr.index = iat_corr.index.droplevel(1)
-            return iat_corr.map(_spearman_brown_formula)
+            return iat_corr.map(_spearman_brown_formula)[0]
         
         if self.name == IATAlgorithmName.CONVENTIONAL.name.lower():
             used_column = "iat_score_logged"
@@ -275,7 +275,8 @@ Error Trial Penalty (ms or SD unit): {self.rt_punishment}"""
         else:
             used_column = "iat_score"
             _algorithm = self._process_data_improved
-            reliability_scores.append(_compute_reliability_score(scored_iat_df, "iat_score_1", "iat_score_2"))
+            calculated_reliability = _compute_reliability_score(scored_iat_df, "iat_score_1", "iat_score_2")
+            reliability_scores.append(calculated_reliability)
         
         used_columns = [*self.iat_data.grouped_by, used_column]
         _, odd_scored_iat_df = _algorithm(trial_data[trial_data["trial_number"] % 2 == 1])
@@ -285,8 +286,8 @@ Error Trial Penalty (ms or SD unit): {self.rt_punishment}"""
             on=self.iat_data.grouped_by,
             suffixes=("_odd", "_even")
         )
-        reliability_scores.append(_compute_reliability_score(odd_even_iat, f"{used_column}_odd", f"{used_column}_even"))
-        
+        calculated_reliability1 = _compute_reliability_score(odd_even_iat, f"{used_column}_odd", f"{used_column}_even")
+        reliability_scores.append(calculated_reliability1)
         return reliability_scores
     
     def _apply_conventional(self):

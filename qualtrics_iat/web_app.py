@@ -4,17 +4,21 @@ import streamlit as st
 import qualtrics_tools
 import iat_scorer
 import script_generator
-import web_utils
+
 
 IATTask = script_generator.IATTask
-SessionState = web_utils.SessionState
 sidebar = st.sidebar
-session_state = SessionState.get(
-    templates=IATTask.templates(),
-    working_task=None,
-    iat_data=None,
-    tool=qualtrics_tools.QualtricsTool()
-)
+
+session_state = st.session_state
+if "templates" not in session_state:
+    session_state.templates = IATTask.templates()
+if "working_task" not in session_state:
+    session_state.working_task = None
+if "iat_data" not in session_state:
+    session_state.iat_data = None
+if "tool" not in session_state:
+    session_state.tool = qualtrics_tools.QualtricsTool()
+
 tool = session_state.tool
 
 
